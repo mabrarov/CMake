@@ -302,8 +302,13 @@ set(_JNI_NORMAL_JAWT
   )
 
 foreach(search ${_JNI_SEARCHES})
-  find_library(JAVA_JVM_LIBRARY ${_JNI_${search}_JVM})
-  find_library(JAVA_AWT_LIBRARY ${_JNI_${search}_JAWT})
+  if(_JAVA_HOME_EXPLICIT)
+    find_library(JAVA_JVM_LIBRARY ${_JNI_${search}_JVM} NO_DEFAULT_PATH)
+    find_library(JAVA_AWT_LIBRARY ${_JNI_${search}_JAWT} NO_DEFAULT_PATH)
+  else()
+    find_library(JAVA_JVM_LIBRARY ${_JNI_${search}_JVM})
+    find_library(JAVA_AWT_LIBRARY ${_JNI_${search}_JAWT})
+  endif()
   if(JAVA_JVM_LIBRARY)
     break()
   endif()
@@ -322,27 +327,58 @@ else()
 endif()
 
 # add in the include path
-find_path(JAVA_INCLUDE_PATH jni.h
-  ${JAVA_AWT_INCLUDE_DIRECTORIES}
-)
+if(_JAVA_HOME_EXPLICIT)
+  find_path(JAVA_INCLUDE_PATH jni.h
+    ${JAVA_AWT_INCLUDE_DIRECTORIES}
+    NO_DEFAULT_PATH
+  )
+else()
+  find_path(JAVA_INCLUDE_PATH jni.h
+    ${JAVA_AWT_INCLUDE_DIRECTORIES}
+  )
+endif()
 
-find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
-  PATHS
-  ${JAVA_INCLUDE_PATH}
-  ${JAVA_INCLUDE_PATH}/darwin
-  ${JAVA_INCLUDE_PATH}/win32
-  ${JAVA_INCLUDE_PATH}/linux
-  ${JAVA_INCLUDE_PATH}/freebsd
-  ${JAVA_INCLUDE_PATH}/openbsd
-  ${JAVA_INCLUDE_PATH}/solaris
-  ${JAVA_INCLUDE_PATH}/hp-ux
-  ${JAVA_INCLUDE_PATH}/alpha
-  ${JAVA_INCLUDE_PATH}/aix
-)
+if(_JAVA_HOME_EXPLICIT)
+  find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
+    PATHS
+    ${JAVA_INCLUDE_PATH}
+    ${JAVA_INCLUDE_PATH}/darwin
+    ${JAVA_INCLUDE_PATH}/win32
+    ${JAVA_INCLUDE_PATH}/linux
+    ${JAVA_INCLUDE_PATH}/freebsd
+    ${JAVA_INCLUDE_PATH}/openbsd
+    ${JAVA_INCLUDE_PATH}/solaris
+    ${JAVA_INCLUDE_PATH}/hp-ux
+    ${JAVA_INCLUDE_PATH}/alpha
+    ${JAVA_INCLUDE_PATH}/aix
+    NO_DEFAULT_PATH
+  )
+else()
+  find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
+    PATHS
+    ${JAVA_INCLUDE_PATH}
+    ${JAVA_INCLUDE_PATH}/darwin
+    ${JAVA_INCLUDE_PATH}/win32
+    ${JAVA_INCLUDE_PATH}/linux
+    ${JAVA_INCLUDE_PATH}/freebsd
+    ${JAVA_INCLUDE_PATH}/openbsd
+    ${JAVA_INCLUDE_PATH}/solaris
+    ${JAVA_INCLUDE_PATH}/hp-ux
+    ${JAVA_INCLUDE_PATH}/alpha
+    ${JAVA_INCLUDE_PATH}/aix
+  )
+endif()
 
-find_path(JAVA_AWT_INCLUDE_PATH jawt.h
-  ${JAVA_INCLUDE_PATH}
-)
+if(_JAVA_HOME_EXPLICIT)
+  find_path(JAVA_AWT_INCLUDE_PATH jawt.h
+    ${JAVA_INCLUDE_PATH}
+    NO_DEFAULT_PATH
+  )
+else()
+  find_path(JAVA_AWT_INCLUDE_PATH jawt.h
+    ${JAVA_INCLUDE_PATH}
+  )
+endif()
 
 # Restore CMAKE_FIND_FRAMEWORK
 if(DEFINED _JNI_CMAKE_FIND_FRAMEWORK)
